@@ -1,44 +1,49 @@
 var Cylon = require('cylon');
 
-Cylon.api({
-  host: '0.0.0.0',
-  port: '8080',
-  ssl: false
-});
-
-
 Cylon.robot({
-  name: 'pebble',
-
   connections: {
-    pebble: { adaptor: 'pebble' }
+    joystick: { adaptor: 'joystick' }
   },
 
   devices: {
-    pebble: { driver: 'pebble' }
+    controller: { driver: 'xbox-360' }
   },
 
   work: function(my) {
-    my.pebble.send_notification("Hello Pebble!");
+    ["a", "b", "x", "y"].forEach(function(button) {
+      my.controller.on(button + ":press", function() {
+        console.log("Button " + button + " pressed.");
+      });
 
-    my.pebble.on('button', function(data) {
-      Cylon.robot({
-  connections: {
-    arduino: { adaptor: 'firmata', port: '/dev/ttyACM0' }
-  },
-
-  devices: {
-    led: { driver: 'led', pin: 13 }
-  },
-
-  work: function(my) {
-    every((1).second(), my.led.toggle);
-  }
-}).start();
+      my.controller.on(button + ":release", function() {
+        console.log("Button " + button + " released.");
+      });
     });
 
-    my.pebble.on('tap', function() {
-      console.log("Tap event detected");
+    my.controller.on("left_x:move", function(pos) {
+      console.log("Left Stick - X:", pos);
+    });
+
+    my.controller.on("left_y:move", function(pos) {
+      console.log("Left Stick - Y:", pos);
+    });
+
+    my.controller.on("right_x:move", function(pos) {
+      console.log("Right Stick - X:", pos);
+    });
+
+    my.controller.on("right_y:move", function(pos) {
+      console.log("Right Stick - Y:", pos);
+    });
+
+    my.controller.on("lt:move", function(pos) {
+      console.log("Left Trigger: ", pos);
+    });
+
+    my.controller.on("rt:move", function(pos) {
+      console.log("Right Trigger: ", pos);
     });
   }
-}).start();
+});z
+
+Cylon.start();
